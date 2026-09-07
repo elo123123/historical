@@ -179,9 +179,17 @@
                         elName.innerText = cell.NAME || '알 수 없음';
                         elMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;        
                         elLatLon.innerText = `[${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}]`;
-                        elElevation.innerText = `${cell.ELEVATION}m (Level ${cell.LEVEL})`;
-                        elClimate.innerText = cell.CLIMATE;
-                        elRiver.innerText = cell.RIVER ? '있음 (True)' : '없음 (False)';
+                        
+                        // 💡 바다 셀(DEPTH 존재)과 육지 셀(ELEVATION 존재) 분기 처리
+                        if (cell.DEPTH !== undefined) {
+                            elElevation.innerText = `수심 ${cell.DEPTH}m (Level ${cell.LEVEL})`;
+                            elClimate.innerText = '바다';
+                            elRiver.innerText = '해당 없음 (False)';
+                        } else {
+                            elElevation.innerText = `${cell.ELEVATION}m (Level ${cell.LEVEL})`;
+                            elClimate.innerText = cell.CLIMATE || '-';
+                            elRiver.innerText = cell.RIVER ? '있음 (True)' : '없음 (False)';
+                        }
                     }
                 }
             }

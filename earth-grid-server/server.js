@@ -5,9 +5,10 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 데이터 파일 경로 정의 (프로젝트 구조에 맞게 map 폴더 참조)
-const GRID_DATA_PATH = path.join(__dirname, '..', 'map', 'earth_grid_400x800.json');
-const PROVINCE_SPEC_PATH = path.join(__dirname, '..', 'map', 'province_specifications.json'); // 💡 프로빈스/도시 명세서 경로 추가
+// 데이터 파일 경로 정의 (분리된 land.json, sea.json 및 province_specifications.json 참조)
+const LAND_DATA_PATH = path.join(__dirname, '..', 'map', 'land.json');
+const SEA_DATA_PATH = path.join(__dirname, '..', 'map', 'sea.json');
+const PROVINCE_SPEC_PATH = path.join(__dirname, '..', 'map', 'province_specifications.json');
 
 // 1. 미들웨어 설정
 app.use((req, res, next) => {
@@ -32,27 +33,50 @@ const checkFileExists = (filePath) => {
 };
 
 // 2. API 라우트
-app.get('/api/grid-data', (req, res) => {
-    if (!checkFileExists(GRID_DATA_PATH)) {
-        console.error(`[ERROR] 파일 없음: ${GRID_DATA_PATH}`);
+
+// ⛰️ 육지 데이터 제공 API
+app.get('/api/land-data', (req, res) => {
+    if (!checkFileExists(LAND_DATA_PATH)) {
+        console.error(`[ERROR] 파일 없음: ${LAND_DATA_PATH}`);
         return res.status(404).json({
-            error: 'Grid data not found',
-            message: 'earth_grid_400x800.json 파일이 없습니다.'
+            error: 'Land data not found',
+            message: 'land.json 파일이 없습니다. 파이썬 스크립트를 먼저 실행해주세요.'
         });
     }
 
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.sendFile(GRID_DATA_PATH, (err) => {
+    res.sendFile(LAND_DATA_PATH, (err) => {
         if (err) {
-            console.error('[ERROR] grid-data 전송 실패:', err);
+            console.error('[ERROR] land-data 전송 실패:', err);
             if (!res.headersSent) {
-                res.status(500).json({ error: 'Failed to send grid data' });
+                res.status(500).json({ error: 'Failed to send land data' });
             }
         }
     });
 });
 
-// 💡 새로운 프로빈스/도시 명세서 제공 API 라우트 추가
+// 🌊 바다 데이터 제공 API
+app.get('/api/sea-data', (req, res) => {
+    if (!checkFileExists(SEA_DATA_PATH)) {
+        console.error(`[ERROR] 파일 없음: ${SEA_DATA_PATH}`);
+        return res.status(404).json({
+            error: 'Sea data not found',
+            message: 'sea.json 파일이 없습니다. 파이썬 스크립트를 먼저 실행해주세요.'
+        });
+    }
+
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.sendFile(SEA_DATA_PATH, (err) => {
+        if (err) {
+            console.error('[ERROR] sea-data 전송 실패:', err);
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'Failed to send sea data' });
+            }
+        }
+    });
+});
+
+// 💡 프로빈스/도시 명세서 제공 API 라우트
 app.get('/api/province-specifications', (req, res) => {
     if (!checkFileExists(PROVINCE_SPEC_PATH)) {
         console.error(`[ERROR] 파일 없음: ${PROVINCE_SPEC_PATH}`);
@@ -73,14 +97,18 @@ app.get('/api/province-specifications', (req, res) => {
     });
 });
 
+// 📊 서버 상태 체크 API
 app.get('/api/status', (req, res) => {
-    const hasGrid = checkFileExists(GRID_DATA_PATH);
-    const hasProvinceSpec = checkFileExists(PROVINCE_SPEC_PATH); // 💡 상태 체크 추가
+    const hasLand = checkFileExists(LAND_DATA_PATH);
+    const hasSea = checkFileExists(SEA_DATA_PATH);
+    const hasProvinceSpec = checkFileExists(PROVINCE_SPEC_PATH);
+    
     res.json({
         status: 'online',
         uptime: process.uptime(),
         files: {
-            'earth_grid_400x800.json': hasGrid ? 'OK' : 'Missing',
+            'land.json': hasLand ? 'OK' : 'Missing',
+            'sea.json': hasSea ? 'OK' : 'Missing',
             'province_specifications.json': hasProvinceSpec ? 'OK' : 'Missing'
         }
     });
@@ -100,9 +128,10 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`=================================`);
-    console.log(` Earth Grid & Province Server Started`);
+    console.log(` Earth Land, Sea & Province Server Started`);
     console.log(` URL: http://localhost:${PORT}`);
-    console.log(` Grid Data Status:     ${checkFileExists(GRID_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
-    console.log(` Province Spec Status: ${checkFileExists(PROVINCE_SPEC_PATH) ? 'Ready' : 'NOT FOUND'}`); // 💡 콘솔 로그 추가
+    console.log(` Land Data Status:     ${checkFileExists(LAND_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
+    console.log(` Sea Data Status:      ${checkFileExists(SEA_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
+    console.log(` Province Spec Status: ${checkFileExists(PROVINCE_SPEC_PATH) ? 'Ready' : 'NOT FOUND'}`);
     console.log(`=================================`);
 });

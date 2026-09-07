@@ -94,14 +94,22 @@
 
     window.addEventListener('resize', resizeCanvas);
 
-    // 색상 팔레트
+    // 💡 바다 레벨별 색상 팔레트 (시인성을 높인 선명한 블루 그라데이션)
+    const DEPTH_COLORS = {
+        1: '#4a90e2', // 표해 (밝고 선명한 연안 블루)
+        2: '#2a75d3', // 중해 (대륙붕 블루)
+        3: '#155bb5', // 반심해 (뚜렷한 심해 블루)
+        4: '#0d3d82', // 심해 (짙고 어두운 네이비)
+        5: '#06204a'  // 초심해 (해구 및 극심연)
+    };
+
+    // 💡 육지 레벨별 색상 팔레트 (경계 구분이 명확한 선명한 어스톤/그린 계열)
     const LEVEL_COLORS = {
-        0: '#171796', // 심해
-        1: '#0000FF', // 바다 (선명한 파랑)
-        2: '#8FFA43', // 평야
-        3: '#006400', // 구릉
-        4: '#8B864E', // 고산
-        5: '#4A221E'  // 산악
+        1: '#7bc950', // 평야 (선명한 연두색)
+        2: '#4c9a2a', // 구릉 (진한 초록색)
+        3: '#c8a846', // 저산 (뚜렷한 황토/골드 톤)
+        4: '#965a27', // 고산 (선명한 갈색)
+        5: '#5e3816'  // 산악 (진하고 어두운 암갈색)
     };
 
     function getClimateColor(climate) {
@@ -142,36 +150,28 @@
                 let fillColor = '#000';
 
                 if (mapState.renderMode === 'LEVEL' || mapState.renderMode === 'PROVINCE') {
-                    const noise = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-                    const rVal = noise - Math.floor(noise);
-
-                    switch (cell.LEVEL) {
-                        case 0:
-                            fillColor = (y % 4 === 0) ? '#171796' : LEVEL_COLORS[0];
-                            break;
-                        case 1:
-                            fillColor = ((x + y) % 2 === 0) ? '#1E90FF' : '#006fdb';
-                            break;
-                        case 2:
-                            if (rVal > 0.65) {
-                                fillColor = '#7be832';
-                            } else if (rVal < 0.25) {
-                                fillColor = '#a3ff6c';
-                            } else {
+                    if (cell.DEPTH !== undefined) {
+                        fillColor = DEPTH_COLORS[cell.LEVEL] || DEPTH_COLORS[2];
+                    } else {
+                        switch (cell.LEVEL) {
+                            case 1:
+                                fillColor = LEVEL_COLORS[1];
+                                break;
+                            case 2:
                                 fillColor = LEVEL_COLORS[2];
-                            }
-                            break;
-                        case 3:
-                            fillColor = ((x - y) % 3 === 0) ? '#228B22' : LEVEL_COLORS[3];
-                            break;
-                        case 4:
-                            fillColor = (rVal > 0.5) ? '#a39e5c' : LEVEL_COLORS[4];
-                            break;
-                        case 5:
-                            fillColor = (rVal > 0.4) ? '#5c2b27' : LEVEL_COLORS[5];
-                            break;
-                        default:
-                            fillColor = '#FF00FF';
+                                break;
+                            case 3:
+                                fillColor = LEVEL_COLORS[3];
+                                break;
+                            case 4:
+                                fillColor = LEVEL_COLORS[4];
+                                break;
+                            case 5:
+                                fillColor = LEVEL_COLORS[5];
+                                break;
+                            default:
+                                fillColor = LEVEL_COLORS[1];
+                        }
                     }
                 } else if (mapState.renderMode === 'CLIMATE') {
                     fillColor = getClimateColor(cell.CLIMATE);
@@ -211,7 +211,12 @@
                 for (let city of mapState.cityList) {
                     const cx = tileOffsetX + city.x * CELL_SIZE + CELL_SIZE / 2;
                     const cy = city.y * CELL_SIZE + CELL_SIZE / 2;
-                    ctx.fillText('⭐', cx, cy);
+                    
+                    // 💡 도시 아이콘 가느다란 검은 테두리 적용
+                    ctx.lineWidth = 0.3;
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeText('🏙️', cx, cy);
+                    ctx.fillText('🏙️', cx, cy);
                 }
             }
         }
@@ -219,13 +224,13 @@
         ctx.restore();
     }
 
-    // UI 엘리먼트 참조 묶음 (이벤트 스크립트에서 패널 텍스트 갱신 시 활용)
+    // UI 엘리먼트 참조 묶음
     const domElements = {
         elName, elMapPos, elLatLon, elElevation, elClimate, elRiver,
         elProvName, elProvMapPos, elProvLatLon, elProvPopulation, elProvResource, elProvBuildings
     };
 
-    // 전역 환경에 설정값 공유 (event_script.js 에서 접근 가능하도록 바인딩)
+    // 전역 환경에 설정값 공유
     window.MapApp = {
         canvas,
         container,
@@ -250,21 +255,36 @@
         ctx.fillText('데이터 로딩 중...', 50, 50);
 
         try {
-            const [gridRes, provRes] = await Promise.all([
-                fetch('/api/grid-data'),
+            const [landRes, seaRes, provRes] = await Promise.all([
+                fetch('/api/land-data'),
+                fetch('/api/sea-data'),
                 fetch('/api/province-specifications')
             ]);
             
-            const gridData = await gridRes.json();
+            const landData = await landRes.json();
+            const seaData = await seaRes.json();
             mapState.provinceSpecs = await provRes.json();
             
             mapState.gridMap = new Array(GRID_ROWS).fill(null).map(() => new Array(GRID_COLS).fill(null));
             
-            for (let key in gridData) {
-                const cell = gridData[key];
+            // 육지 데이터 매핑
+            for (let key in landData) {
+                const cell = landData[key];
                 const x = cell.MAP_POSITION[0];
                 const y = cell.MAP_POSITION[1];
-                mapState.gridMap[y][x] = cell;
+                if (y >= 0 && y < GRID_ROWS && x >= 0 && x < GRID_COLS) {
+                    mapState.gridMap[y][x] = cell;
+                }
+            }
+
+            // 바다 데이터 매핑
+            for (let key in seaData) {
+                const cell = seaData[key];
+                const x = cell.MAP_POSITION[0];
+                const y = cell.MAP_POSITION[1];
+                if (y >= 0 && y < GRID_ROWS && x >= 0 && x < GRID_COLS) {
+                    mapState.gridMap[y][x] = cell;
+                }
             }
 
             mapState.cityList = [];
@@ -280,7 +300,7 @@
                 if (gy >= 0 && gy < GRID_ROWS && gx >= 0 && gx < GRID_COLS) {
                     if (mapState.gridMap[gy][gx]) {
                         mapState.gridMap[gy][gx].PROVINCE_SPEC = spec;
-                        mapState.cityList.push({ x: gx, y: gy, spec: spec });
+                        mapState.cityList.path?.push ? null : mapState.cityList.push({ x: gx, y: gy, spec: spec });
                     }
                 }
             }
@@ -295,7 +315,6 @@
             buildOffscreenMap(); 
             render(); 
 
-            // 데이터 로딩 완료 후 이벤트 리스너 마운트
             if (window.initMapEvents) {
                 window.initMapEvents();
             }
