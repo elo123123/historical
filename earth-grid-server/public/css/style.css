@@ -1,0 +1,90 @@
+* { box-sizing: border-box; }
+
+/* 핵심: 브라우저 전체 레벨에서 픽셀 보간을 완전히 차단하고 도트 선명화 강제 적용 */
+canvas {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #111;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* 맵이 그려질 메인 캔버스 영역 (우측 사이드바 250px 제외한 나머지 전체 차지) */
+#canvas-container {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    cursor: crosshair;
+    overflow: hidden;
+    background-color: #000;
+}
+
+#mapCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* 우측 고정 정보 패널 (너비 250px 고정) */
+#sidebar {
+    width: 250px;
+    height: 100%;
+    background: rgba(20, 24, 33, 0.95);
+    border-left: 1px solid #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    z-index: 10;
+    flex-shrink: 0;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00ffcc;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.info-group {
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.info-label {
+    color: #888;
+    font-size: 11px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    color: #fff;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+.guide-section {
+    margin-top: auto;
+    border-top: 1px solid #333;
+    padding-top: 15px;
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.5;
+}

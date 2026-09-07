@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anno Domini 300</title>
+    <!-- 외부 CSS 파일 연결 -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+    <!-- 맵 캔버스 영역 -->
+    <div id="canvas-container">
+        <canvas id="mapCanvas"></canvas>
+    </div>
+
+    <!-- 우측 고정 정보 패널 (250px) -->
+    <div id="sidebar">
+        <div class="sidebar-header">정보</div>
+        
+        <div id="info-content">
+            <!-- 1. 기본 모드 (LEVEL, CLIMATE)용 패널 -->
+            <div id="panel-normal" class="info-panel-section">
+                <div class="info-group">
+                    <span class="info-label">🗺️선택된 지역</span>
+                    <div class="info-value" id="info-name" style="color: #00ffcc; font-weight: bold;">원하는 지역을 클릭하세요</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🧭맵 좌표</span>
+                    <div class="info-value" id="info-map-pos">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🌏위도/경도</span>
+                    <div class="info-value" id="info-latlon">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">⛰️고도/높이</span>
+                    <div class="info-value" id="info-elevation">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🌦️기후</span>
+                    <div class="info-value" id="info-climate">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🎣강/호수</span>
+                    <div class="info-value" id="info-river">-</div>
+                </div>
+            </div>
+
+            <!-- 2. 프로빈스 모드 (W / PROVINCE)용 패널 (기본은 숨김 처리) -->
+            <div id="panel-province" class="info-panel-section" style="display: none;">
+                <div class="info-group">
+                    <span class="info-label">🏙️프로빈스/국가</span>
+                    <div class="info-value" id="info-prov-name" style="color: #ffcc00; font-weight: bold;">도시를 선택하세요</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🧭맵 좌표</span>
+                    <div class="info-value" id="info-prov-map-pos">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🌏위도/경도</span>
+                    <div class="info-value" id="info-prov-latlon">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">👥인구</span>
+                    <div class="info-value" id="info-prov-population">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">⛏️자원 정보</span>
+                    <div class="info-value" id="info-prov-resource">-</div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">🏛️건물</span>
+                    <div class="info-value" id="info-prov-buildings">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <b>[조작법 가이드]</b><br>
+            • <b>Q / W / E</b>: 모드 전환 (고도 / 도시 / 기후)<br>
+            • <b>마우스 휠</b>: 확대 / 축소<br>
+            • <b>Space or 좌클릭 드래그</b>: 맵 이동<br>
+            • <b>좌클릭</b>: 해당 위치 정보 선택
+        </div>
+    </div>
+
+    <!-- 외부 자바스크립트 파일 연결 -->
+    <script src="./js/command_action.js"></script>
+    <script src="./js/render.js"></script>
+    <script src="./js/event.js"></script>
+</body>
+</html>
