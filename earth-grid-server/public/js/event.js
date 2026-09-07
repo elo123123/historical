@@ -3,18 +3,8 @@
 
     function initMapEvents() {
         const {
-            canvas,
-            container,
-            mapState,
-            GRID_COLS,
-            GRID_ROWS,
-            CELL_SIZE,
-            domElements,
-            updateInfoPanelVisibility,
-            buildOffscreenMap,
-            render,
-            clampOffset,
-            getMinScale
+            canvas, container, mapState, GRID_COLS, GRID_ROWS, CELL_SIZE,
+            domElements, updateInfoPanelVisibility, buildOffscreenMap, render, clampOffset, getMinScale
         } = window.MapApp;
 
         const {
@@ -22,19 +12,16 @@
             elProvName, elProvMapPos, elProvLatLon, elProvPopulation, elProvResource, elProvBuildings
         } = domElements;
 
-        // 우클릭 컨텍스트 메뉴 초기화 함수 호출 (command_action.js 연동)
         if (typeof window.initContextMenu === 'function') {
             window.initContextMenu();
         }
 
-        // 팝업 숨기기 안전 호출 헬퍼
         function hideCustomPopup() {
             if (window.MapApp && typeof window.MapApp.hideCustomPopup === 'function') {
                 window.MapApp.hideCustomPopup();
             }
         }
 
-        // 화면 다른 곳을 누를 때 팝업 닫기
         window.addEventListener('click', (e) => {
             const popup = window.MapApp ? window.MapApp.customPopup : null;
             if (popup && !popup.contains(e.target)) {
@@ -42,7 +29,6 @@
             }
         });
 
-        // 단축키 매니저 (Q, W, E, Spacebar 핸들링)
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 mapState.isSpacePressed = true;
@@ -81,7 +67,6 @@
             }
         });
 
-        // 마우스 드래그 & 팬 이벤트
         canvas.addEventListener('mousedown', (e) => {
             hideCustomPopup();
             if ((mapState.isSpacePressed && e.button === 0) || e.button === 1) {
@@ -95,7 +80,6 @@
 
         canvas.addEventListener('mousemove', (e) => {
             if (!mapState.isDataLoaded) return;
-
             if (mapState.isDragging) {
                 mapState.offsetX = e.clientX - mapState.dragStartX;
                 mapState.offsetY = e.clientY - mapState.dragStartY;
@@ -111,7 +95,7 @@
             }
         });
 
-        // 클릭 이벤트 (셀 선택 및 패널 데이터 갱신)
+        // 💡 요소 선택 통합 클릭 핸들러 (수도 아이콘 / 프로빈스 클릭 판정)
         canvas.addEventListener('click', (e) => {
             if (!mapState.isDataLoaded || mapState.isSpacePressed || e.button !== 0) return;
 
@@ -129,64 +113,81 @@
             gridX = ((gridX % GRID_COLS) + GRID_COLS) % GRID_COLS;
 
             const cell = mapState.gridMap[gridY][gridX];
-            if (cell) {
-                const calcLat = 90 - (cell.MAP_POSITION[1] / GRID_ROWS) * 180;
-                const calcLon = (cell.MAP_POSITION[0] / GRID_COLS) * 360 - 180;
+            const calcLat = 90 - (cell?.MAP_POSITION?.[1] / GRID_ROWS) * 180;
+            const calcLon = (cell?.MAP_POSITION?.[0] / GRID_COLS) * 360 - 180;
 
-                if (mapState.renderMode === 'PROVINCE') {
-                    if (cell.PROVINCE_SPEC) {
-                        const spec = cell.PROVINCE_SPEC;
-                        
-                        let resourceStr = '-';
-                        if (spec.RESOURCE && spec.RESOURCE.RESOURCE_NAME && spec.RESOURCE.RESOURCE_NAME.trim() !== "") {
-                            const resName = spec.RESOURCE.RESOURCE_NAME;
-                            const resLevel = spec.RESOURCE.RESOURCE_LEVEL !== undefined ? spec.RESOURCE.RESOURCE_LEVEL : '';
-                            resourceStr = `${resName}${resLevel}`;
-                        }
-
-                        let buildingsStr = '없음';
-                        const buildingList = spec.BUILDING_LIST || spec.BUILDINGS;
-                        if (Array.isArray(buildingList) && buildingList.length > 0) {
-                            buildingsStr = buildingList.join(', ');
-                        } else if (typeof buildingList === 'string' && buildingList.trim() !== '') {
-                            buildingsStr = buildingList;
-                        }
-
-                        elProvName.innerText = `${spec.PROVINCE_NAME} (${spec.COUNTRY_NAME})`;
-                        elProvMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
-                        elProvLatLon.innerText = `[${spec.POSITION[0].toFixed(2)}, ${spec.POSITION[1].toFixed(2)}]`;
-                        elProvPopulation.innerText = `${spec.POPULATION.toLocaleString()}명`;
-                        elProvResource.innerText = resourceStr;
-                        elProvBuildings.innerText = buildingsStr;
-                    } else {
-                        elProvName.innerText = '등록된 도시/프로빈스가 없습니다';
-                        elProvMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
-                        elProvLatLon.innerText = `[${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}]`;
-                        elProvPopulation.innerText = '-';
-                        elProvResource.innerText = '-';
-                        elProvBuildings.innerText = '-';
+            if (mapState.renderMode === 'PROVINCE') {
+                let clickedCapital = null;
+                
+                // 지도 반복(tiling)을 고려한 정규화된 mapX 계산
+                const mapWidth = GRID_COLS * CELL_SIZE;
+                const normalizedMapX = ((mapX % mapWidth) + mapWidth) % mapWidth;
+                
+                // 1. 클릭 위치 반경 내에 위치한 '수도(Capital)'가 있는지 우선 검사 (반경 약 1.5셀 기준)
+                for (let cap of mapState.capitals) {
+                    const cx = cap.x * CELL_SIZE + CELL_SIZE / 2;
+                    const cy = cap.y * CELL_SIZE + CELL_SIZE / 2;
+                    const dx = normalizedMapX - cx;
+                    const dy = mapY - cy;
+                    
+                    if (Math.sqrt(dx * dx + dy * dy) < CELL_SIZE * 1.5) {
+                        clickedCapital = cap;
+                        break;
                     }
-                } else {
+                }
+
+                if (clickedCapital) {
+                    // [도시 정보 출력] (인구수 천 단위 쉼표 적용)
+                    const cData = clickedCapital.cityData;
+                    elProvName.innerText = `[도시] ${cData.CITY_NAME || cData.name || '알 수 없음'}`;
+                    elProvMapPos.innerText = `[${clickedCapital.x}, ${clickedCapital.y}]`;
+                    elProvLatLon.innerText = cData.POSITION ? `[${cData.POSITION[0]}, ${cData.POSITION[1]}]` : '-';
+                    elProvPopulation.innerText = cData.CITY_POPULATION ? `${Number(cData.CITY_POPULATION).toLocaleString()}명` : '-';
+                    elProvResource.innerText = '-'; 
+                    elProvBuildings.innerText = cData.BUILDINGS ? cData.BUILDINGS.join(', ') : '-';
+                } else if (cell && cell.provinceData) {
+                    // [프로빈스 육지 정보 출력] (인구수 천 단위 쉼표 적용)
+                    const pData = cell.provinceData;
+                    elProvName.innerText = `[프로빈스] ${pData.PROVINCE_NAME || pData.ID || '알 수 없음'}`;
+                    elProvMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
+                    elProvLatLon.innerText = `[${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}]`;
+                    elProvPopulation.innerText = pData.PROV_POPULATION ? `${Number(pData.PROV_POPULATION).toLocaleString()}명` : '-';
+                    elProvResource.innerText = pData.RESOURCE ? JSON.stringify(pData.RESOURCE) : '-';
+                    elProvBuildings.innerText = '-';
+                } else if (cell) {
+                    // [비어있는 땅 / 바다]
+                    elProvName.innerText = '등록된 도시/프로빈스가 없습니다';
+                    elProvMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
+                    elProvLatLon.innerText = `[${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}]`;
+                    elProvPopulation.innerText = '-';
+                    elProvResource.innerText = '-';
+                    elProvBuildings.innerText = '-';
+                }
+            } else {
+                // 기본 LEVEL, CLIMATE 모드 로직 유지
+                if (cell) {
                     if (cell.PROVINCE_SPEC) {
                         const spec = cell.PROVINCE_SPEC;
                         elName.innerText = `${spec.PROVINCE_NAME} (${spec.COUNTRY_NAME})`;
                         elMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
                         elLatLon.innerText = `[${spec.POSITION[0].toFixed(2)}, ${spec.POSITION[1].toFixed(2)}]`;
-                        elElevation.innerText = `${cell.ELEVATION}m (인구: ${spec.POPULATION.toLocaleString()}명)`;
+                        // 고도 및 인구수 천 단위 쉼표 적용
+                        elElevation.innerText = `${Number(cell.ELEVATION).toLocaleString()}m (인구: ${Number(spec.POPULATION).toLocaleString()}명)`;
                         elClimate.innerText = cell.CLIMATE;
                         elRiver.innerText = cell.RIVER ? '있음 (True)' : '없음 (False)';
                     } else {
                         elName.innerText = cell.NAME || '알 수 없음';
-                        elMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;        
+                        elMapPos.innerText = `[${cell.MAP_POSITION[0]}, ${cell.MAP_POSITION[1]}]`;
                         elLatLon.innerText = `[${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}]`;
                         
-                        // 💡 바다 셀(DEPTH 존재)과 육지 셀(ELEVATION 존재) 분기 처리
                         if (cell.DEPTH !== undefined) {
-                            elElevation.innerText = `수심 ${cell.DEPTH}m (Level ${cell.LEVEL})`;
+                            // 수심 천 단위 쉼표 적용
+                            elElevation.innerText = `수심 ${Number(cell.DEPTH).toLocaleString()}m (Level ${cell.LEVEL})`;
                             elClimate.innerText = '바다';
                             elRiver.innerText = '해당 없음 (False)';
                         } else {
-                            elElevation.innerText = `${cell.ELEVATION}m (Level ${cell.LEVEL})`;
+                            // 고도 천 단위 쉼표 적용
+                            elElevation.innerText = `${Number(cell.ELEVATION).toLocaleString()}m (Level ${cell.LEVEL})`;
                             elClimate.innerText = cell.CLIMATE || '-';
                             elRiver.innerText = cell.RIVER ? '있음 (True)' : '없음 (False)';
                         }
@@ -195,7 +196,6 @@
             }
         });
 
-        // 휠 줌 이벤트
         canvas.addEventListener('wheel', (e) => {
             if (!mapState.isDataLoaded) return;
             e.preventDefault();

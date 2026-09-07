@@ -5,10 +5,11 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 데이터 파일 경로 정의 (분리된 land.json, sea.json 및 province_specifications.json 참조)
+// 데이터 파일 경로 정의 (상위 폴더의 map 디렉토리 기준)
 const LAND_DATA_PATH = path.join(__dirname, '..', 'map', 'land.json');
 const SEA_DATA_PATH = path.join(__dirname, '..', 'map', 'sea.json');
-const PROVINCE_SPEC_PATH = path.join(__dirname, '..', 'map', 'province_specifications.json');
+const PROVINCE_DATA_PATH = path.join(__dirname, '..', 'map', 'province.json');
+const CITY_DATA_PATH = path.join(__dirname, '..', 'map', 'city.json');
 
 // 1. 미들웨어 설정
 app.use((req, res, next) => {
@@ -19,7 +20,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// public 폴더를 정적 파일 제공 디렉토리로 설정 (이곳에 index.html을 둡니다)
+// public 폴더를 정적 파일 제공 디렉토리로 설정
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
@@ -40,19 +41,11 @@ app.get('/api/land-data', (req, res) => {
         console.error(`[ERROR] 파일 없음: ${LAND_DATA_PATH}`);
         return res.status(404).json({
             error: 'Land data not found',
-            message: 'land.json 파일이 없습니다. 파이썬 스크립트를 먼저 실행해주세요.'
+            message: 'land.json 파일이 없습니다.'
         });
     }
-
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.sendFile(LAND_DATA_PATH, (err) => {
-        if (err) {
-            console.error('[ERROR] land-data 전송 실패:', err);
-            if (!res.headersSent) {
-                res.status(500).json({ error: 'Failed to send land data' });
-            }
-        }
-    });
+    res.sendFile(LAND_DATA_PATH);
 });
 
 // 🌊 바다 데이터 제공 API
@@ -61,55 +54,49 @@ app.get('/api/sea-data', (req, res) => {
         console.error(`[ERROR] 파일 없음: ${SEA_DATA_PATH}`);
         return res.status(404).json({
             error: 'Sea data not found',
-            message: 'sea.json 파일이 없습니다. 파이썬 스크립트를 먼저 실행해주세요.'
+            message: 'sea.json 파일이 없습니다.'
         });
     }
-
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.sendFile(SEA_DATA_PATH, (err) => {
-        if (err) {
-            console.error('[ERROR] sea-data 전송 실패:', err);
-            if (!res.headersSent) {
-                res.status(500).json({ error: 'Failed to send sea data' });
-            }
-        }
-    });
+    res.sendFile(SEA_DATA_PATH);
 });
 
-// 💡 프로빈스/도시 명세서 제공 API 라우트
-app.get('/api/province-specifications', (req, res) => {
-    if (!checkFileExists(PROVINCE_SPEC_PATH)) {
-        console.error(`[ERROR] 파일 없음: ${PROVINCE_SPEC_PATH}`);
+// 🏰 프로빈스 데이터 제공 라우트 (클라이언트의 fetch('province.json') 대응)
+app.get('/province.json', (req, res) => {
+    if (!checkFileExists(PROVINCE_DATA_PATH)) {
+        console.error(`[ERROR] 파일 없음: ${PROVINCE_DATA_PATH}`);
         return res.status(404).json({
-            error: 'Province specifications not found',
-            message: 'province_specifications.json 파일이 없습니다. 파이썬 스크립트를 먼저 실행해주세요.'
+            error: 'Province data not found',
+            message: 'province.json 파일이 없습니다.'
         });
     }
-
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.sendFile(PROVINCE_SPEC_PATH, (err) => {
-        if (err) {
-            console.error('[ERROR] province-specifications 전송 실패:', err);
-            if (!res.headersSent) {
-                res.status(500).json({ error: 'Failed to send province specifications' });
-            }
-        }
-    });
+    res.sendFile(PROVINCE_DATA_PATH);
+});
+
+// 🏙️ 도시 데이터 제공 라우트 (클라이언트의 fetch('city.json') 대응)
+app.get('/city.json', (req, res) => {
+    if (!checkFileExists(CITY_DATA_PATH)) {
+        console.error(`[ERROR] 파일 없음: ${CITY_DATA_PATH}`);
+        return res.status(404).json({
+            error: 'City data not found',
+            message: 'city.json 파일이 없습니다.'
+        });
+    }
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.sendFile(CITY_DATA_PATH);
 });
 
 // 📊 서버 상태 체크 API
 app.get('/api/status', (req, res) => {
-    const hasLand = checkFileExists(LAND_DATA_PATH);
-    const hasSea = checkFileExists(SEA_DATA_PATH);
-    const hasProvinceSpec = checkFileExists(PROVINCE_SPEC_PATH);
-    
     res.json({
         status: 'online',
         uptime: process.uptime(),
         files: {
-            'land.json': hasLand ? 'OK' : 'Missing',
-            'sea.json': hasSea ? 'OK' : 'Missing',
-            'province_specifications.json': hasProvinceSpec ? 'OK' : 'Missing'
+            'land.json': checkFileExists(LAND_DATA_PATH) ? 'OK' : 'Missing',
+            'sea.json': checkFileExists(SEA_DATA_PATH) ? 'OK' : 'Missing',
+            'province.json': checkFileExists(PROVINCE_DATA_PATH) ? 'OK' : 'Missing',
+            'city.json': checkFileExists(CITY_DATA_PATH) ? 'OK' : 'Missing'
         }
     });
 });
@@ -132,6 +119,7 @@ app.listen(PORT, () => {
     console.log(` URL: http://localhost:${PORT}`);
     console.log(` Land Data Status:     ${checkFileExists(LAND_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
     console.log(` Sea Data Status:      ${checkFileExists(SEA_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
-    console.log(` Province Spec Status: ${checkFileExists(PROVINCE_SPEC_PATH) ? 'Ready' : 'NOT FOUND'}`);
+    console.log(` Province Status:      ${checkFileExists(PROVINCE_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
+    console.log(` City Status:          ${checkFileExists(CITY_DATA_PATH) ? 'Ready' : 'NOT FOUND'}`);
     console.log(`=================================`);
 });
