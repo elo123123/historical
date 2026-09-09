@@ -7,154 +7,837 @@
 "BUILDING":{
 	// 도로
 	"ROAD" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{			
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
 	],
 	// 항만
 	"PORT" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 성채
 	"CASTLE" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 역참
 	"STATION" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
-	// 병영
+	// 육군영
 	"BARRACK" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
-	// 수영
+	// 해군영
 	"NAVAL" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 대장간
 	"SMITHY" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 조선소
 	"SHIPYARD" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 시장
 	"MARKET" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 공방 
 	"WORKSHOP" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 제재소
 	"LUMBERMILL" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 농장 
 	"FARM" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 목장
 	"PASTURE" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 광산
 	"MINE" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 어장
 	"FISHING" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 사냥터
 	"HUNTING" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 관청
 	"HALL" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 사원
 	"TEMPLE" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 	// 학교
 	"SCHOOL" : [
-		{},
-		{},
-		{},
-		{},
-		{}
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		},
+		{
+			"PRICE" : 5,
+			"P_TIME" : 1,
+			"FIT_PLACE" : "",
+			"REQ_RES" : [""],
+			"MAINTENANCE" : 0.1,
+			"BUILD_EFF" : []
+		}
+
 	],
 }

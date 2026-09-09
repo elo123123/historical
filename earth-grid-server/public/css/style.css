@@ -1,90 +1,193 @@
-* { box-sizing: border-box; }
-
-/* 핵심: 브라우저 전체 레벨에서 픽셀 보간을 완전히 차단하고 도트 선명화 강제 적용 */
-canvas {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-crisp-edges;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
+/* 기본 스타일 리셋 및 뷰포트 전체 고정 */
+@font-face {
+    font-family: 'Noto Color Emoji';
+    src: url('../fonts/NotoColorEmoji-Regular.ttf') format('truetype');
+    font-display: swap;
 }
 
-body {
+/* 글로벌 폰트 지정 (일반 글꼴 뒤에 이모지 폰트를 배치) */
+html, body {
     margin: 0;
     padding: 0;
-    background-color: #111;
-    color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-}
-
-/* 맵이 그려질 메인 캔버스 영역 (우측 사이드바 250px 제외한 나머지 전체 차지) */
-#canvas-container {
-    position: relative;
-    flex: 1;
-    height: 100%;
-    cursor: crosshair;
-    overflow: hidden;
-    background-color: #000;
-}
-
-#mapCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-/* 우측 고정 정보 패널 (너비 250px 고정) */
-#sidebar {
-    width: 250px;
-    height: 100%;
-    background: rgba(20, 24, 33, 0.95);
-    border-left: 1px solid #333;
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    z-index: 10;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Noto Color Emoji', sans-serif;
+}
+
+/* 캔버스 컨테이너: 하단 패널을 제외한 나머지 화면 전체 점유 */
+#canvas-container {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 캔버스 요소 기본 스타일 */
+#mapCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 하단 바텀 패널: 높이 고정 */
+#bottom-panel {
+    flex-shrink: 0; /* 화면 크기가 줄어들어도 패널 높이 유지 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    height: 200px;
+    padding: 10px;
+    box-sizing: border-box;
+
+    background-color: #4a2e1b;
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15) 0px,
+            rgba(0, 0, 0, 0.15) 4px,
+            transparent 4px,
+            transparent 8px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            #5a3720 0px, #5a3720 16px,
+            #4a2e1b 16px, #4a2e1b 32px,
+            #3b2313 32px, #3b2313 48px,
+            #633e25 48px, #633e25 64px
+        );
+
+    border: 4px solid #1a0f08;
+    box-shadow: 
+        inset 4px 4px 0px #794c2d,
+        inset -4px -4px 0px #2a180d,
+        0px -2px 8px rgba(0, 0, 0, 0.6);
+}
+/* 하단 전체 패널 */
+#bottom-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 4px solid #000000;
+    background-color: #ffffff;
+}
+
+/* 좌측 3개 박스 컨테이너 (세로 정렬) */
+.left-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     flex-shrink: 0;
-    box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+}
+
+/* 개별 정보 박스 스타일 */
+.info-box {
+    width: 150px;
+    height: 28px;
+    border: 3px solid #000000;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 메시지 패널 (중앙 영역 꽉 차게) */
+.black-message-panel {
+    flex: 1;
+    height: 96px;
+    border: 4px solid #000000;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 8px;
+    box-sizing: border-box;
     overflow-y: auto;
 }
 
-.sidebar-header {
-    font-size: 16px;
+
+
+/* 메시지 패널 */
+#message-panel {
+    flex: 1;
+    height: 180px;
+    box-sizing: border-box;
+    background-color: #0c0d0e;
+    border: 4px solid #1a0f08;
+    box-shadow: 
+        inset 4px 4px 0px #000000,
+        inset -2px -2px 0px #222222;
+}
+
+
+/* 스크롤바 디자인 (픽셀/목재 컨셉에 맞는 얇은 스크롤바) */
+.black-message-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.black-message-panel::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 3px;
+}
+.black-message-panel::-webkit-scrollbar-track {
+    background-color: #111;
+}
+
+/* 우측 도트풍 목재 버튼 */
+.pixel-wood-btn {
+    width: 130px;
+    height: 180px;
+    flex-shrink: 0;
+    
+    background-color: #6a4227;
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.1) 0px,
+            rgba(0, 0, 0, 0.1) 4px,
+            transparent 4px,
+            transparent 8px
+        ),
+        linear-gradient(to bottom, #7a4d2e, #53331c);
+    
+    border: 4px solid #1a0f08;
+    box-shadow: 
+        inset 4px 4px 0px #98623b,
+        inset -4px -4px 0px #341e10;
+        
+    color: #fff3db;
+    font-size: 20px;
     font-weight: bold;
-    color: #00ffcc;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
+    font-family: monospace, sans-serif;
+    text-shadow: 2px 2px 0px #1a0f08;
+    
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.info-group {
-    margin-bottom: 12px;
-    font-size: 13px;
-    line-height: 1.6;
+.pixel-wood-btn:hover {
+    background-color: #794c2d;
+    filter: brightness(1.1);
 }
 
-.info-label {
-    color: #888;
-    font-size: 11px;
-    display: block;
-    margin-bottom: 2px;
-}
-
-.info-value {
-    color: #fff;
-    font-weight: 500;
-    word-break: break-all;
-}
-
-.guide-section {
-    margin-top: auto;
-    border-top: 1px solid #333;
-    padding-top: 15px;
-    font-size: 11px;
-    color: #aaa;
-    line-height: 1.5;
+.pixel-wood-btn:active {
+    box-shadow: 
+        inset 4px 4px 0px #341e10,
+        inset -4px -4px 0px #98623b;
+    transform: translate(2px, 2px);
 }

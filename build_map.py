@@ -13,6 +13,7 @@ GRID_COLS = 800
 DATA_DIR = "earth_map_data"
 ETOPO_FILE_PATH = os.path.join(DATA_DIR, "etopo180.csv")
 CLIMATE_JSON_PATH = os.path.join(DATA_DIR, "climate_data.json")
+PROVINCE_JSON_PATH = os.path.join("map", "province.json")
 
 LOCAL_FILES = {
     "countries": "ne_10m_admin_0_countries.geojson",
@@ -29,7 +30,7 @@ def load_local_gis_datasets():
         raise FileNotFoundError(f"'{DATA_DIR}'📂폴더가 존재하지 않습니다.")
 
     datasets = {}
-    print("📄[1/6] 로컬 GIS 데이터셋 로딩 중...")
+    print("📄[1/7] 로컬 GIS 데이터셋 로딩 중...")
     for key, filename in LOCAL_FILES.items():
         file_path = os.path.join(DATA_DIR, filename)
         if os.path.exists(file_path):
@@ -41,13 +42,37 @@ def load_local_gis_datasets():
     return datasets
 
 def load_climate_json(file_path=CLIMATE_JSON_PATH):
-    """실제 기후 데이터 JSON 파일을 불러옵니다."""
     if os.path.exists(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
-            print(f"🗂️[2/6] 성공: {file_path} 기후 데이터 파일을 불러왔습니다.")
+            print(f"🗂️[2/7] 성공: {file_path} 기후 데이터 파일을 불러왔습니다.")
             return json.load(f)
     print(f"🚨[경고] '{file_path}' 파일을 찾을 수 없습니다. 수식 기반 모델로 대체됩니다.")
     return {}
+
+def load_province_data(file_path=PROVINCE_JSON_PATH):
+    id_to_name = {}
+    name_to_id = {}
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                prov_data = json.load(f)
+                for key, info in prov_data.items():
+                    try:
+                        region_id = int(key)
+                    except (ValueError, TypeError):
+                        continue
+
+                    region_name = info.get("REGION_NAME", "")
+                    if region_name:
+                        id_to_name[region_id] = region_name
+                        clean_name = str(region_name).strip().lower().replace(" ", "")
+                        name_to_id[clean_name] = region_id
+            print(f"🏛️[3/7] 성공: {file_path} 프로빈스 데이터 로드 완료 ({len(id_to_name)}개 영토 색인 생성)")
+        except Exception as e:
+            print(f"🚨[경고] {file_path} 읽기 실패: {e}")
+    else:
+        print(f"🚨[경고] '{file_path}' 파일이 존재하지 않습니다. REGION_ID 매칭은 0으로 설정됩니다.")
+    return id_to_name, name_to_id
 
 def fetch_actual_etopo_elevation(target_pts):
     if not os.path.exists(ETOPO_FILE_PATH):
@@ -114,13 +139,12 @@ def generate_climate_data_vectorized(target_pts, elevations, country_code_arr, p
     mask_subtropical_zone = (~is_ocean) & (final_temperatures >= 15) & (final_temperatures < 22)
     mask_tropical = (~is_ocean) & (final_temperatures >= 22)
 
-    t_str = np.vectorize(lambda t: f"{t:+.1f}°C")
-    
-    climates[mask_polar] = "툰트라/극지방(" + t_str(final_temperatures[mask_polar]) + ")"
-    climates[mask_subarctic] = "냉대/북해(" + t_str(final_temperatures[mask_subarctic]) + ")"
-    climates[mask_temperate] = "온대(" + t_str(final_temperatures[mask_temperate]) + ")"
-    climates[mask_subtropical_zone] = "아열대(" + t_str(final_temperatures[mask_subtropical_zone]) + ")"
-    climates[mask_tropical] = "열대(" + t_str(final_temperatures[mask_tropical]) + ")"
+    # 괄호 안의 온도 문자열 조합을 제거하고 pure한 기후 명칭만 저장
+    climates[mask_polar] = "툰트라/극지방"
+    climates[mask_subarctic] = "냉대/북해"
+    climates[mask_temperate] = "온대"
+    climates[mask_subtropical_zone] = "아열대"
+    climates[mask_tropical] = "열대"
 
     return final_temperatures, climates
 
@@ -130,8 +154,9 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     
     datasets = load_local_gis_datasets()
     climate_json = load_climate_json(CLIMATE_JSON_PATH)
+    prov_id_to_name, prov_name_to_id = load_province_data(PROVINCE_JSON_PATH)
 
-    print("\n🛠️[3/6] 좌표 매트릭스 고속 생성 중...")
+    print("\n🛠️[4/7] 좌표 매트릭스 고속 생성 중...")
     lat_step = 180.0 / GRID_ROWS
     lon_step = 360.0 / GRID_COLS
     
@@ -146,12 +171,13 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     
     points = gpd.points_from_xy(flat_lons, flat_lats)
 
-    print("🏁[4/6] STRtree 고속 공간 인덱싱(Vectorized) 기반 레이어 매핑 중...")
+    print("🏁[5/7] STRtree 고속 공간 인덱싱(Vectorized) 기반 레이어 매핑 중...")
     
     country_arr = np.full(total_cells, "", dtype=object)
     country_code_arr = np.full(total_cells, "", dtype=object)
     province_arr = np.full(total_cells, "", dtype=object)
     province_code_arr = np.full(total_cells, "", dtype=object)
+    province_id_arr = np.zeros(total_cells, dtype=int)
     region_arr = np.full(total_cells, "", dtype=object)
     marine_arr = np.full(total_cells, "", dtype=object)
     place_arr = np.full(total_cells, "", dtype=object)
@@ -170,8 +196,23 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
                     out_array[unique_pts] = names[geom_idx[first_indices]]
 
     map_polygons("countries", ['NAME_LONG', 'ADMIN', 'NAME', 'SOVEREIGNT'], country_arr)
-    map_polygons("provinces", ['NAME', 'name', 'name_en'], province_arr)
     
+    if datasets.get("provinces") is not None:
+        gdf_p = datasets["provinces"]
+        geoms = gdf_p.geometry.values
+        p_col = next((c for c in ['name', 'NAME', 'NAME_LONG', 'name_en'] if c in gdf_p.columns), None)
+        
+        tree = STRtree(geoms)
+        pts_idx, geom_idx = tree.query(points, predicate='intersects')
+        if len(pts_idx) > 0:
+            unique_pts, first_indices = np.unique(pts_idx, return_index=True)
+            matched_indices = geom_idx[first_indices]
+            
+            province_id_arr[unique_pts] = matched_indices + 1
+            if p_col:
+                names = gdf_p[p_col].fillna('').values
+                province_arr[unique_pts] = names[matched_indices]
+
     if datasets.get("countries") is not None:
         gdf_c = datasets["countries"]
         iso_col = next((c for c in ['ISO_A3', 'ADM0_A3', 'su_a3'] if c in gdf_c.columns), None)
@@ -199,7 +240,7 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     map_polygons("regions", ['NAME', 'name', 'name_en'], region_arr)
     map_polygons("marine", ['NAME', 'name', 'NAME_LONG'], marine_arr)
     
-    if datasets["places"] is not None:
+    if datasets.get("places") is not None:
         gdf = datasets["places"]
         pl_col = next((c for c in ['NAME', 'name', 'NAMEASCII'] if c in gdf.columns), None)
         if pl_col:
@@ -213,8 +254,8 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     river_arr = np.zeros(total_cells, dtype=bool)
     print("    🚣강 및 호수 데이터 (RIVER) 연산 중...")
     water_geoms = []
-    if datasets["rivers"] is not None: water_geoms.extend(datasets["rivers"].geometry.values)
-    if datasets["lakes"] is not None: water_geoms.extend(datasets["lakes"].geometry.values)
+    if datasets.get("rivers") is not None: water_geoms.extend(datasets["rivers"].geometry.values)
+    if datasets.get("lakes") is not None: water_geoms.extend(datasets["lakes"].geometry.values)
         
     if water_geoms:
         water_tree = STRtree(water_geoms)
@@ -222,18 +263,33 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
         if len(pts_idx) > 0:
             river_arr[np.unique(pts_idx)] = True
 
-    print("\n🌦️[5/6] 실측 고도, 기후 데이터 및 LEVEL 일괄 연산 중...")
+    print("\n🌦️[6/7] 실측 고도, 기후 데이터 및 REGION_ID 매핑 연산 중...")
     elevations = fetch_actual_etopo_elevation(target_pts)
     
-    _, climates = generate_climate_data_vectorized(
+    final_temps, climates = generate_climate_data_vectorized(
         target_pts, elevations, country_code_arr, province_code_arr, climate_json, target_month
     )
 
-    # 육지 / 해양 마스크 분리 (elevations >= 0 이면 육지, < 0 이면 바다)
+    tile_region_ids = np.zeros(total_cells, dtype=int)
+    for i in range(total_cells):
+        p_name = str(province_arr[i]).strip().lower().replace(" ", "")
+        c_name = str(country_arr[i]).strip().lower().replace(" ", "")
+        r_name = str(region_arr[i]).strip().lower().replace(" ", "")
+
+        if p_name and p_name in prov_name_to_id:
+            tile_region_ids[i] = prov_name_to_id[p_name]
+        elif c_name and c_name in prov_name_to_id:
+            tile_region_ids[i] = prov_name_to_id[c_name]
+        elif r_name and r_name in prov_name_to_id:
+            tile_region_ids[i] = prov_name_to_id[r_name]
+        else:
+            pid = province_id_arr[i]
+            if pid > 0 and pid in prov_id_to_name:
+                tile_region_ids[i] = pid
+
     land_mask = elevations >= 0
     sea_mask = elevations < 0
 
-    # 1) 육지 LEVEL 연산 (0~100, 100~300, 300~1000, 1000~2000, >2000)
     land_levels = np.zeros(total_cells, dtype=int)
     land_levels[(elevations >= 0) & (elevations <= 100)] = 1
     land_levels[(elevations > 100) & (elevations <= 300)] = 2
@@ -241,7 +297,6 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     land_levels[(elevations > 1000) & (elevations <= 2000)] = 4
     land_levels[elevations > 2000] = 5
 
-    # 2) 해양 DEPTH 및 LEVEL 연산 (0~200, 200~1000, 1000~4000, 4000~6000, >6000)
     depths = -elevations
     sea_levels = np.zeros(total_cells, dtype=int)
     sea_levels[(elevations < 0) & (depths <= 200)] = 1
@@ -254,34 +309,37 @@ def build_fast_earth_json(output_path="./map/land.json", target_month="1995-07")
     map_y = np.arange(total_cells) // GRID_COLS
     
     final_names = np.full(total_cells, "Unknown", dtype=object)
-    for arr in (marine_arr, region_arr, country_arr, province_arr, place_arr):
+    for arr in (place_arr, marine_arr, region_arr, country_arr, province_arr):
         mask = arr != ""
         final_names[mask] = arr[mask]
 
-    print("\n💾[6/6] 분리된 JSON 구조체 생성 및 파일 저장 중...")
+    print("\n💾[7/7] 분리된 JSON 구조체 생성 및 고속 파일 저장 중...")
 
     # 1. 육지 데이터 생성 및 저장 (land.json)
-    # ID 중복 방지를 위해 전체 그리드 기준의 고유 인덱스(i + 1)를 ID로 사용합니다.
     land_indices = np.where(land_mask)[0]
-    result_land_json = {
-        int(i + 1): {
+    result_land_json = {}
+
+    for i in land_indices:
+        # 소수점 첫째 자리 float 값으로 정밀 보존
+        temp_val = round(float(final_temps[i]), 1)
+
+        result_land_json[int(i + 1)] = {
             "NAME": str(final_names[i]),
             "POSITION": [float(flat_lats[i]), float(flat_lons[i])],
             "MAP_POSITION": [int(map_x[i]), int(map_y[i])],
             "ELEVATION": int(elevations[i]),
             "LEVEL": int(land_levels[i]),
-            "CLIMATE": str(climates[i]),
-            "RIVER": bool(river_arr[i])
+            "CLIMATE": str(climates[i]),      # 예: "툰트라/극지방"
+            "TEMPERATURE": temp_val,          # 예: -38.6 (float)
+            "RIVER": bool(river_arr[i]),
+            "REGION_ID": int(tile_region_ids[i])
         }
-        for i in land_indices
-    }
 
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(result_land_json, f, ensure_ascii=False, indent=4)
     print(f"    ⛰️육지 파일(land.json) 저장 완료: {output_path} (항목 수: {len(land_indices):,})")
 
     # 2. 해양 데이터 생성 및 저장 (sea.json)
-    # 바다 역시 전체 그리드 기준 고유 인덱스(i + 1)를 사용하므로 land.json과 ID가 절대 겹치지 않습니다.
     sea_output_path = os.path.join(os.path.dirname(output_path), "sea.json")
     sea_indices = np.where(sea_mask)[0]
     result_sea_json = {
