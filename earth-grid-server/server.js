@@ -42,7 +42,6 @@ const checkFileExists = (filePath) => {
 };
 
 // 2. API 라우트
-
 // ⛰️ 육지 데이터
 app.get('/api/land-data', (req, res) => {
     if (!checkFileExists(LAND_DATA_PATH)) {
@@ -61,7 +60,7 @@ app.get('/api/sea-data', (req, res) => {
     res.sendFile(SEA_DATA_PATH);
 });
 
-// 🏰 프로빈스 데이터
+// 🏰 지역 데이터
 app.get('/province.json', (req, res) => {
     if (!checkFileExists(PROVINCE_DATA_PATH)) {
         return res.status(404).json({ error: 'Province data not found', message: 'province.json 파일이 없습니다.' });

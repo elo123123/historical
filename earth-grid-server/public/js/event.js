@@ -1,8 +1,12 @@
 (function() {
     'use strict';
 
+    // 이벤트 모듈 중복 초기화 방지 플래그
     let isInitialized = false;
 
+    /**
+     * [유틸리티 함수] 키-값 형태의 데이터(객체, 배열, 문자열)를 읽기 쉬운 텍스트로 포맷팅
+     */
     function formatKeyValueList(data) {
         if (!data) return '-';
         if (typeof data === 'string') return data;
@@ -26,6 +30,9 @@
         return String(data);
     }
 
+    /**
+     * [메인 초기화 함수] 지도 관련 이벤트(마우스 클릭/드래그/휠, 키보드 단축키)를 등록
+     */
     function initMapEvents() {
         if (isInitialized) return;
 
@@ -43,6 +50,9 @@
         if (!canvas || !container || !mapState) return;
         isInitialized = true;
 
+        /**
+         * [헬퍼 함수] 셀 객체에서 프로빈스/지역 ID를 안전하게 조회
+         */
         const safeGetRegionId = getRegionId || function(cell) {
             if (!cell) return null;
             const id = cell.REGION_ID ?? cell.region_id ?? cell.PROVINCE_ID ?? cell.province_id ?? cell.provinceData?.ID;
@@ -56,12 +66,21 @@
             elProvName, elProvMapPos, elProvLatLon, elProvPopulation, elProvResource, elProvBuildings
         } = domElements || {};
 
-        const boxLatLon = document.getElementById('info-latlon') || domElLatLon;
-        const boxMapPos = document.getElementById('info-map-pos') || domElMapPos;
-        const boxName = document.getElementById('info-name') || domElName;
+        const boxLatLon = document.getElementById('info-latlon') || elLatLon;
+        const boxMapPos = document.getElementById('info-map-pos') || elMapPos;
+        const boxName = document.getElementById('info-name') || elName;
 
         const setText = (element, value) => {
             if (element) element.innerText = value;
+        };
+
+        /**
+         * [헬퍼 함수] 하단 목재 패널 정보 박스 3개 출력 갱신
+         */
+        const updateBottomPanel = (name, latLon, mapPos) => {
+            setText(boxName, `${name || '-'}`);
+            setText(boxLatLon, `🌐 ${latLon || '-'}`);
+            setText(boxMapPos, `📌 ${mapPos || '-'}`);
         };
 
         const hideCustomPopup = () => {
@@ -167,6 +186,9 @@
 
         window.addEventListener('mouseup', handleMouseUp);
 
+        /**
+         * [마우스 이벤트] 캔버스 클릭 시 선택 영역 정보 출력
+         */
         canvas.addEventListener('click', (e) => {
             if (!mapState.isDataLoaded || e.button !== 0 || hasDragged) return;
 
@@ -198,123 +220,142 @@
             const formattedLatLon = `${calcLat.toFixed(2)}, ${calcLon.toFixed(2)}`;
             const formattedMapPos = `${gridX}, ${gridY}`;
 
-            if (mapState.renderMode === 'PROVINCE') {
-                let clickedCapital = null;
+            const landName = cell.NAME || '알 수 없음';
 
-                if (Array.isArray(mapState.capitals)) {
-                    for (let i = 0; i < mapState.capitals.length; i++) {
-                        const cap = mapState.capitals[i];
-                        if (cap.x === gridX && cap.y === gridY) {
-                            clickedCapital = cap;
-                            break;
-                        }
+            // '⭐' 도시 존재 여부 검사
+            let clickedCapital = null;
+            if (Array.isArray(mapState.capitals)) {
+                for (let i = 0; i < mapState.capitals.length; i++) {
+                    const cap = mapState.capitals[i];
+                    if (cap.x === gridX && cap.y === gridY) {
+                        clickedCapital = cap;
+                        break;
                     }
                 }
+            }
 
-                if (clickedCapital) {
-                    const cData = clickedCapital.cityData || {};
-                    const cityName = cData.CITY_NAME || cData.name || '알 수 없음';
-                    const cityPop = cData.CITY_POPULATION ? `${Number(cData.CITY_POPULATION).toLocaleString()}명` : '-';
-                    const capLatLon = cData.POSITION ? `${cData.POSITION[0]}, ${cData.POSITION[1]}` : formattedLatLon;
-                    const capPos = `${clickedCapital.x}, ${clickedCapital.y}`;
+            // A. '⭐' 도시를 클릭한 경우
+            if (clickedCapital) {
+                const cData = clickedCapital.cityData || {};
+                const cityName = cData.CITY_NAME || cData.name || '알 수 없음';
+                const fullCityName = `${cityName}, 🌏${landName}`;
+                const cityPop = cData.CITY_POPULATION ? `${Number(cData.CITY_POPULATION).toLocaleString()}명` : '-';
+                
+                let capLatLon = formattedLatLon;
+                if (cData.POSITION && Array.isArray(cData.POSITION)) {
+                    capLatLon = `${cData.POSITION[0].toFixed(2)}, ${cData.POSITION[1].toFixed(2)}`;
+                }
+                const capPos = `${clickedCapital.x}, ${clickedCapital.y}`;
 
-                    setText(boxLatLon, capLatLon);
-                    setText(boxMapPos, capPos);
-                    setText(boxName, `${cityName}`);
+                updateBottomPanel(`⭐${fullCityName}`, capLatLon, capPos);
 
-                    setText(elProvName, `[도시] ${cityName}`);
-                    setText(elProvMapPos, capPos);
-                    setText(elProvLatLon, capLatLon);
-                    setText(elProvPopulation, cityPop);
-                    setText(elProvResource, '-');
-                    setText(elProvBuildings, formatKeyValueList(cData.BUILDINGS));
+                setText(elProvName, `⭐${fullCityName}`);
+                setText(elProvMapPos, capPos);
+                setText(elProvLatLon, capLatLon);
+                setText(elProvPopulation, cityPop);
+                setText(elProvResource, '-');
+                setText(elProvBuildings, formatKeyValueList(cData.BUILDINGS || cData.BUILDING_LIST));
+
+                setText(elName, `⭐${fullCityName}`);
+                setText(elMapPos, '🌐'+capPos);
+                setText(elLatLon, '📌'+capLatLon);
+                if (cell.DEPTH !== undefined) {
+                    setText(elElevation, `수심 ${Number(cell.DEPTH).toLocaleString()}m (인구: ${cityPop})`);
                 } else {
-                    const regionId = safeGetRegionId(cell);
-                    const pData = cell.provinceData || (regionId ? mapState.provinceData?.[regionId] : null);
-
-                    if (pData) {
-                        const provName = pData.REGION_NAME || pData.PROVINCE_NAME || pData.ID || '알 수 없음';
-                        const rawPop = pData.REGION_POPULATION ?? pData.PROV_POPULATION;
-                        const provPop = rawPop !== undefined ? `${Number(rawPop).toLocaleString()}명` : '-';
-
-                        const extraStats = [];
-                        if (pData.DEVELOPMENT_LEVEL !== undefined) extraStats.push(`발전도 Lv.${pData.DEVELOPMENT_LEVEL}`);
-                        if (pData.DOMINION_DEGREE !== undefined) extraStats.push(`지배력 ${pData.DOMINION_DEGREE}%`);
-                        const popWithStats = extraStats.length > 0 ? `${provPop} (${extraStats.join(', ')})` : provPop;
-
-                        let capInfoStr = '';
-                        const capId = pData.CAPITAL_CITY_ID ?? pData.CAPITAL_CITY;
-                        if (capId !== undefined && capId !== null) {
-                            const cityObj = mapState.cityData?.[capId] || mapState.cityData?.[String(capId)];
-                            if (cityObj) {
-                                capInfoStr = ` (수도: ${cityObj.CITY_NAME || cityObj.name || capId})`;
-                            } else {
-                                capInfoStr = ` (수도 ID: ${capId})`;
-                            }
-                        }
-
-                        const resStr = formatKeyValueList(pData.RESOURCES || pData.RESOURCE);
-                        const buildStr = formatKeyValueList(pData.REGIONAL_BUILDINGS || pData.BUILDINGS);
-
-                        setText(boxLatLon, formattedLatLon);
-                        setText(boxMapPos, formattedMapPos);
-                        setText(boxName, `${provName}${capInfoStr}`);
-
-                        setText(elProvName, `[프로빈스] ${provName}`);
-                        setText(elProvMapPos, formattedMapPos);
-                        setText(elProvLatLon, formattedLatLon);
-                        setText(elProvPopulation, popWithStats);
-                        setText(elProvResource, resStr);
-                        setText(elProvBuildings, buildStr);
-                    } else {
-                        setText(boxLatLon, formattedLatLon);
-                        setText(boxMapPos, formattedMapPos);
-                        setText(boxName, '등록 영역 없음');
-
-                        setText(elProvName, '등록된 도시/프로빈스가 없습니다');
-                        setText(elProvMapPos, formattedMapPos);
-                        setText(elProvLatLon, formattedLatLon);
-                        setText(elProvPopulation, '-');
-                        setText(elProvResource, '-');
-                        setText(elProvBuildings, '-');
-                    }
+                    setText(elElevation, `${Number(cell.ELEVATION || 0).toLocaleString()}m (인구: ${cityPop})`);
                 }
+                setText(elClimate, cell.CLIMATE || '-');
+                setText(elRiver, cell.RIVER ? '있음 (True)' : '없음 (False)');
+
+            // B. PROVINCE 모드 ('w')에서 셀 클릭 시
+            } else if (mapState.renderMode === 'PROVINCE') {
+                const regionId = safeGetRegionId(cell);
+                const pData = cell.provinceData || (regionId ? mapState.provinceData?.[regionId] : null);
+                const spec = cell.PROVINCE_SPEC;
+
+                // province.json / spec 대신 land.json 데이터의 NAME(landName)을 직접 사용
+                const provName = landName;
+
+                if (pData || spec) {
+                    const rawPop = pData?.REGION_POPULATION ?? pData?.PROV_POPULATION ?? spec?.POPULATION ?? spec?.REGION_POPULATION;
+                    const provPop = rawPop !== undefined ? `${Number(rawPop).toLocaleString()}명` : '-';
+
+                    const extraStats = [];
+                    if (pData?.DEVELOPMENT_LEVEL !== undefined) extraStats.push(`발전도 Lv.${pData.DEVELOPMENT_LEVEL}`);
+                    if (pData?.DOMINION_DEGREE !== undefined) extraStats.push(`지배력 ${pData.DOMINION_DEGREE}%`);
+                    const popWithStats = extraStats.length > 0 ? `${provPop} (${extraStats.join(', ')})` : provPop;
+
+                    let capInfoStr = '';
+                    const capId = pData?.CAPITAL_CITY_ID ?? pData?.CAPITAL_CITY;
+                    /**
+                    if (capId !== undefined && capId !== null) {
+                        const cityObj = mapState.cityData?.[capId] || mapState.cityData?.[String(capId)];
+                        if (cityObj) {
+                            capInfoStr = ` (수도: ${cityObj.CITY_NAME || cityObj.name || capId})`;
+                        } else {
+                            capInfoStr = ` (수도 ID: ${capId})`;
+                        }
+                    }
+                    **/
+
+                    const resStr = formatKeyValueList(pData?.RESOURCES || pData?.RESOURCE);
+                    const buildStr = formatKeyValueList(pData?.REGIONAL_BUILDINGS || pData?.BUILDINGS);
+
+                    const countryStr = spec?.COUNTRY_NAME ? ` (${spec.COUNTRY_NAME})` : '';
+                    const fullProvDisplay = `${provName}${countryStr}${capInfoStr}`;
+
+                    updateBottomPanel(`🌏${fullProvDisplay}`, formattedLatLon, formattedMapPos);
+
+                    setText(elProvName, `🌏${provName}`);
+                    setText(elProvMapPos, formattedMapPos);
+                    setText(elProvLatLon, formattedLatLon);
+                    setText(elProvPopulation, popWithStats);
+                    setText(elProvResource, resStr);
+                    setText(elProvBuildings, buildStr);
+                } else {
+                    updateBottomPanel(`❎(${landName})`, formattedLatLon, formattedMapPos);
+
+                    setText(elProvName, `등록된 도시/프로빈스가 없습니다 (${landName})`);
+                    setText(elProvMapPos, formattedMapPos);
+                    setText(elProvLatLon, formattedLatLon);
+                    setText(elProvPopulation, '-');
+                    setText(elProvResource, '-');
+                    setText(elProvBuildings, '-');
+                }
+
+            // C. LEVEL ('q') / CLIMATE ('e') 모드 클릭 시
             } else {
                 if (cell.PROVINCE_SPEC) {
                     const spec = cell.PROVINCE_SPEC;
-                    const pName = spec.REGION_NAME || spec.PROVINCE_NAME || '알 수 없음';
-                    const fullName = `${pName} (${spec.COUNTRY_NAME || '국가 미상'})`;
-                    const specLatLon = spec.POSITION ? `위도/경도: [${spec.POSITION[0].toFixed(2)}, ${spec.POSITION[1].toFixed(2)}]` : formattedLatLon;
+                    const pName = spec.PROVINCE_NAME || spec.REGION_NAME || '🤷‍♂️알 수 없음';
+                    const fullName = `🤷${pName} (${spec.COUNTRY_NAME || '국가 미상'}) - ${landName}`;
+                    const specLatLon = (spec.POSITION && Array.isArray(spec.POSITION))
+                        ? `🌐${spec.POSITION[0].toFixed(2)}, ${spec.POSITION[1].toFixed(2)}`
+                        : formattedLatLon;
 
-                    setText(boxLatLon, specLatLon);
-                    setText(boxMapPos, formattedMapPos);
-                    setText(boxName, fullName);
+                    updateBottomPanel(fullName, specLatLon, formattedMapPos);
 
-                    setText(elName, fullName);
-                    setText(elMapPos, formattedMapPos);
-                    setText(elLatLon, specLatLon);
-                    setText(elElevation, `${Number(cell.ELEVATION).toLocaleString()}m (인구: ${Number(spec.POPULATION || spec.REGION_POPULATION || 0).toLocaleString()}명)`);
-                    setText(elClimate, cell.CLIMATE);
-                    setText(elRiver, cell.RIVER ? '있음 (True)' : '없음 (False)');
+                    setText(elName, '🌏'+fullName);
+                    setText(elMapPos, '📌'+formattedMapPos);
+                    setText(elLatLon, '🌐'+specLatLon);
+                    setText(elElevation, `⛰️${Number(cell.ELEVATION || 0).toLocaleString()}m (인구: ${Number(spec.POPULATION || spec.REGION_POPULATION || 0).toLocaleString()}명)`);
+                    setText(elClimate, '🌦️'+cell.CLIMATE || '-');
+                    setText(elRiver, '🛶'+cell.RIVER ? '있음 (True)' : '없음 (False)');
                 } else {
-                    const terrainName = cell.NAME || '알 수 없음';
+                    updateBottomPanel(landName, formattedLatLon, formattedMapPos);
 
-                    setText(boxLatLon, formattedLatLon);
-                    setText(boxMapPos, formattedMapPos);
-                    setText(boxName, terrainName);
-
-                    setText(elName, terrainName);
+                    setText(elName, landName);
                     setText(elMapPos, formattedMapPos);
                     setText(elLatLon, formattedLatLon);
 
                     if (cell.DEPTH !== undefined) {
-                        setText(elElevation, `수심 ${Number(cell.DEPTH).toLocaleString()}m (Level ${cell.LEVEL})`);
-                        setText(elClimate, '바다');
+                        setText(elElevation, `🪼수심 ${Number(cell.DEPTH).toLocaleString()}m (Level ${cell.LEVEL})`);
+                        setText(elClimate, '🌊바다');
                         setText(elRiver, '해당 없음 (False)');
                     } else {
-                        setText(elElevation, `${Number(cell.ELEVATION).toLocaleString()}m (Level ${cell.LEVEL})`);
-                        setText(elClimate, cell.CLIMATE || '-');
-                        setText(elRiver, cell.RIVER ? '있음 (True)' : '없음 (False)');
+                        setText(elElevation, `🪼${Number(cell.ELEVATION || 0).toLocaleString()}m (Level ${cell.LEVEL || 0})`);
+                        setText(elClimate, '🌦️'+cell.CLIMATE || '-');
+                        setText(elRiver, '🛶'+cell.RIVER ? '있음 (True)' : '없음 (False)');
                     }
                 }
             }

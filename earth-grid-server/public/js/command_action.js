@@ -424,7 +424,7 @@
 
                         const posArr = targetCell.MAP_POSITION;
                         const posStr = Array.isArray(posArr) && posArr.length >= 2 ? `[${posArr[0]}, ${posArr[1]}]` : `[${gridX}, ${gridY}]`;
-                        const isSea = targetCell.DEPTH !== undefined || targetCell.CLIMATE === undefined;
+                        const isSea = targetCell.DEPTH !== undefined || targetCell.CLIMATE_LEVEL_1 === undefined;
 
                         if (isSea) {
                             const seaName = targetCell.NAME || '알 수 없음';
@@ -440,7 +440,7 @@
                             const landName = targetCell.NAME || '알 수 없음';
                             const rawLevel = targetCell.LEVEL;
                             const levelText = levelMap[rawLevel] || rawLevel || '알 수 없음';
-                            const climate = targetCell.CLIMATE || '알 수 없음';
+                            const climate = targetCell.CLIMATE_LEVEL_1 || '알 수 없음';
 
                             const foundCity = mapState.capitals ? mapState.capitals.find(c => c.x === gridX && c.y === gridY) : null;
 
@@ -462,7 +462,7 @@
                                 }
 
                                 showInfoModal([
-                                    `🏙️도시 이름 : ${cityName}(${landName})`,                                    
+                                    `🏙️도시 이름 : ${cityName}(${landName})`, 
                                     `🌐위치 : ${posStr}`,
                                     `⛰️고도 : ${levelText}`,
                                     `🌦️기후 : ${climate}`,                                    
@@ -471,8 +471,8 @@
                                     `🏢건물 목록 : ${buildingList}`
                                 ]);
                             } else {
-                                const provName = targetCell.provinceData && targetCell.provinceData.PROVINCE_NAME 
-                                    ? targetCell.provinceData.PROVINCE_NAME 
+                                const provName = targetCell.provinceData && targetCell.provinceData.REGION_NAME 
+                                    ? targetCell.provinceData.REGION_NAME 
                                     : '알 수 없음';
                                 const provPop = targetCell.provinceData && targetCell.provinceData.PROV_POPULATION !== undefined 
                                     ? Number(targetCell.provinceData.PROV_POPULATION).toLocaleString() 

@@ -134,13 +134,15 @@
      */
     function getClimateColor(climate) {
         if (!climate || climate === 'Unknown') return '#111111';
-        if (climate.includes('바다')) return '#0000FF';
-        if (climate.includes('극지방') || climate.includes('툰트라')) return '#E0FFFF';
-        if (climate.includes('냉대') || climate.includes('북해')) return '#4682B4';
-        if (climate.includes('사막') || climate.includes('건조')) return '#DEB887';
-        if (climate.includes('온대')) return '#228B22';
-        if (climate.includes('아열대')) return '#9ACD32';
-        if (climate.includes('열대')) return '#FF8C00';
+        //if (climate.includes('바다')) return '#0000FF';
+        if (climate.includes('냉대'))  return '#820082';
+        if (climate.includes('열대')) return '#960000';
+        if (climate.includes('사막')) return '#FFCD00';
+        if (climate.includes('온대')) return '#96FF00';
+        if (climate.includes('건조')) return '#CDAA54';
+        if (climate.includes('고산')) return '#6E6E6E';
+        if (climate.includes('툰트라')) return '#B2B2B2';
+        if (climate.includes('극지방')) return '#64FFFF';
         return '#333333';
     }
 
@@ -268,7 +270,7 @@
                         fillColor = LEVEL_COLORS[cell.LEVEL] || LEVEL_COLORS[1];
                     }
                 } else if (mapState.renderMode === 'CLIMATE') {
-                    fillColor = getClimateColor(cell.CLIMATE);
+                    fillColor = getClimateColor(cell.CLIMATE_LEVEL_1);
                 }
 
                 offCtx.fillStyle = fillColor;
